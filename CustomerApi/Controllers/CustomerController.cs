@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CustomerApi.Models.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace CustomerApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class CustomerController : ControllerBase
     {
@@ -19,15 +20,16 @@ namespace CustomerApi.Controllers
         }
 
         [HttpGet]
-        [Route("/GetCustomer")]
+        //[Route("/GetCustomer")]
         public IActionResult GetAllCustomers()
         {
             var availableCustomers = dbContext.Customers.ToList();
             return Ok(availableCustomers);
         }
 
-        [HttpGet]
-        [Route("/GetCustomerById{id:int}")]
+        //[HttpGet]
+        // [Route("/GetCustomerById{id:int}")]
+        [HttpGet("{id}")]
         public IActionResult GetCustomerById(int id)
         {
             var customer = dbContext.Customers.Find(id);
@@ -39,7 +41,7 @@ namespace CustomerApi.Controllers
         }
 
         [HttpPost]
-        [Route("/AddCustomer")]
+        //[Route("/AddCustomer")]
         public IActionResult AddCustomer(AddCustomer addCustomer)
         {
             var customerentity = new Customers()
@@ -58,42 +60,70 @@ namespace CustomerApi.Controllers
         }
 
         [HttpPut]
-        [Route("/UpdateCustomer")]
-        public IActionResult updateCustomer(int id, UpdateCustomer updateCustomer)
+       // [Route("/UpdateCustomer")]
+        public IActionResult updateCustomer( UpdateCustomer updateCustomer)
         {
-            var customer = dbContext.Customers.Find(id);
-
-            if (customer is null)
+            
+            if(updateCustomer==null || updateCustomer.CustomerCode == 0)
             {
-                return NotFound();
+                return BadRequest("Invalid data");
             }
 
-            customer.Name = updateCustomer.Name;
-            customer.Address = updateCustomer.Address;
-            customer.Email = updateCustomer.Email;
-            customer.MobileNo = updateCustomer.MobileNo;
-            customer.GeoLocation = updateCustomer.GeoLocation;
+            try
+            {
+                //var customer = new Customers()
+                //{
+                //    Name = updateCustomer.Name,
+                //    Address = updateCustomer.Address,
+                //    Email = updateCustomer.Email,
+                //    MobileNo = updateCustomer.MobileNo,
+                //    GeoLocation = updateCustomer.GeoLocation
 
-            dbContext.SaveChanges();
+                //};
 
-            return Ok(customer);
+                var customer = dbContext.Customers.Find(updateCustomer.CustomerCode);
+                if (customer == null)
+                {
+                    return NotFound($"Product not found with id {updateCustomer.CustomerCode}");
+                }
+                customer.Name = updateCustomer.Name;
+                customer.Address = updateCustomer.Address;
+                customer.Email = updateCustomer.Email;
+                customer.MobileNo = updateCustomer.MobileNo;
+                customer.GeoLocation = updateCustomer.GeoLocation;
+                dbContext.SaveChanges();
+
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpDelete]
-        [Route("/DeleteCustomer")]
+        [HttpDelete("{id}")]
+        //[Route("/DeleteCustomer")]
         public IActionResult DeleteCustomer(int id)
         {
-            var customer = dbContext.Customers.Find(id);
-
-            if (customer is null)
+            try
             {
-                return NotFound();
+                var customer = dbContext.Customers.Find(id);
+
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                dbContext.Customers.Remove(customer);
+                dbContext.SaveChanges();
+
+                return Ok("Record Deleted Successfully");
             }
+            catch (Exception ex)
+            {
 
-            dbContext.Customers.Remove(customer);
-            dbContext.SaveChanges();
-
-            return Ok();
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
