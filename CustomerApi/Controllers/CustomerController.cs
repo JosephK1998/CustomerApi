@@ -20,15 +20,12 @@ namespace CustomerApi.Controllers
         }
 
         [HttpGet]
-        //[Route("/GetCustomer")]
         public IActionResult GetAllCustomers()
         {
             var availableCustomers = dbContext.Customers.ToList();
             return Ok(availableCustomers);
         }
 
-        //[HttpGet]
-        // [Route("/GetCustomerById{id:int}")]
         [HttpGet("{id}")]
         public IActionResult GetCustomerById(int id)
         {
@@ -41,7 +38,6 @@ namespace CustomerApi.Controllers
         }
 
         [HttpPost]
-        //[Route("/AddCustomer")]
         public IActionResult AddCustomer(AddCustomer addCustomer)
         {
             var customerentity = new Customers()
@@ -60,7 +56,6 @@ namespace CustomerApi.Controllers
         }
 
         [HttpPut]
-       // [Route("/UpdateCustomer")]
         public IActionResult updateCustomer( UpdateCustomer updateCustomer)
         {
             
@@ -71,15 +66,6 @@ namespace CustomerApi.Controllers
 
             try
             {
-                //var customer = new Customers()
-                //{
-                //    Name = updateCustomer.Name,
-                //    Address = updateCustomer.Address,
-                //    Email = updateCustomer.Email,
-                //    MobileNo = updateCustomer.MobileNo,
-                //    GeoLocation = updateCustomer.GeoLocation
-
-                //};
 
                 var customer = dbContext.Customers.Find(updateCustomer.CustomerCode);
                 if (customer == null)
@@ -102,7 +88,6 @@ namespace CustomerApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Route("/DeleteCustomer")]
         public IActionResult DeleteCustomer(int id)
         {
             try
